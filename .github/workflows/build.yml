@@ -1,0 +1,40 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build plugin jar
+        run: ./gradlew --no-daemon clean shadowJar
+      - name: Check page JS parses
+        run: |
+          python3 - <<'EOF'
+          s=open('src/main/groovy/com/morpheusdata/hvmupdater/FleetPage.groovy',encoding='utf-8').read()
+          q="'"*3
+          js=s.split("static final String JS = "+q,1)[1].rsplit(q,1)[0]
+          assert '\\' not in js and '$' not in js, 'FleetPage JS must not contain backslashes or $'
+          open('fleet.js','w').write("var base='',q=function(){},esc=function(){},fmtB=function(){};\n"+js)
+          EOF
+          node --check fleet.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hvm-updater-jar
+          path: build/libs/hvm-updater-*-all.jar
+      - name: Release on tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/libs/hvm-updater-*-all.jar
+          generate_release_notes: true
