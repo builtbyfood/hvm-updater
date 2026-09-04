@@ -117,7 +117,7 @@ Quick health check: `https://<appliance>/plugin/hvmUpdater/api/diag?probe=1` sho
    ![Available files — download and staged](docs/images/backup-running.png)
 
    <!-- screenshot: Upgrade card mid-run (step bar at reconfigure, runner log tail) -->
-   ![Upgrade card — in progress](docs/images/upgrade-running.png)
+   ![Upgrade card — in progress](docs/images/upgrading-running.png)
 4. Afterwards, the Upgrade card, `upgrade.log`, and `journalctl -u hvm-updater-upgrade` should agree, and the Appliance card shows the new version.
 
    <!-- screenshot: Upgrade card at done, from → to versions, Appliance card showing 'up to date' -->
